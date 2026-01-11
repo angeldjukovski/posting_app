@@ -16,6 +16,14 @@ export class RegisterDTO {
   @ApiProperty({ description: 'Email used for registration' })
   email: string;
 
+  @IsString()
+  @ApiProperty({ description: 'First Name used for registration' })
+  firstName: string;
+
+  @IsString()
+  @ApiProperty({ description: 'First Name used for registration' })
+  lastName: string;
+
   @IsStrongPassword()
   @ApiProperty({ description: 'Password used for registration' })
   password: string;

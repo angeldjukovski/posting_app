@@ -22,7 +22,7 @@ export class AuthService {
   async register(
     registerDto: RegisterDTO,
   ): Promise<Omit<UserORMEntity, 'password'>> {
-    const { username, email, password } = registerDto;
+    const { username, email, firstName, lastName, password } = registerDto;
     const user = await this.userRepository.findOneBy({ email });
     if (user) {
       throw new BadRequestException(`That ${email} already exists`);
@@ -36,6 +36,8 @@ export class AuthService {
       {
         username,
         email,
+        firstName,
+        lastName,
         password: hashedPassword,
         role: registerDto.role || UserRole.Poster,
       },

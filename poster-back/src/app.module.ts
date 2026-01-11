@@ -19,11 +19,13 @@ import { JwtStrategy } from './auth/jwt.strategy';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
+      synchronize: true,
     }),
     AuthModule,
     UserModule,
     PostModule,
   ],
+
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
 })

@@ -4,10 +4,12 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
+import { PostORMEntity } from 'src/post/entity/post.entity';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'user' })
 export class UserORMEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -23,6 +25,8 @@ export class UserORMEntity {
   password: string;
   @Column({ type: 'enum', enum: UserRole, default: UserRole.Poster })
   role: UserRole;
+  @OneToMany(() => PostORMEntity, (post) => post.user)
+  posts: PostORMEntity[];
   @Column({ type: 'text', array: true, default: () => 'ARRAY[]::text[]' })
   refreshToken: string[];
   @CreateDateColumn()
