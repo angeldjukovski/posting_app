@@ -5,6 +5,7 @@ import Link from "next/link";
 
 export const PostFeed = () => {
   const { posts } = usePosts();
+  console.log(posts)
 
   return (
     <div>
