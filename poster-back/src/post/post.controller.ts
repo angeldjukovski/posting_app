@@ -28,6 +28,7 @@ export class PostController {
   create(@Body() CreatePostDTO: CreatePostDTO, @GetUser() user: UserORMEntity) {
     return this.postService.createPost(CreatePostDTO, user);
   }
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -48,8 +49,8 @@ export class PostController {
   }
 
   @Get()
-  findAll() {
-    return this.postService.findAll();
+  findAll(@Query('userId') userId?: string) {
+    return this.postService.findAll(userId ? Number(userId) : undefined);
   }
 
   @Get('search')
@@ -74,6 +75,16 @@ export class PostController {
   ) {
     return this.postService.toggleLike(id, user);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/like')
+  deleteLike(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: UserORMEntity,
+  ) {
+    return this.postService.deleteLike(id, user);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post(':id/repost')
   postRepost(
@@ -81,5 +92,14 @@ export class PostController {
     @GetUser() user: UserORMEntity,
   ) {
     return this.postService.toggleRepost(id, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/repost')
+  deleteRepost(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: UserORMEntity,
+  ) {
+    return this.postService.removeRepost(id, user);
   }
 }

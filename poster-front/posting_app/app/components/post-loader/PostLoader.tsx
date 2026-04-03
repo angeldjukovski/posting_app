@@ -19,7 +19,7 @@ export const PostLoader = () => {
   };
 
   return (
-    <div className="p-4 border rounded">
+    <div className="card bg-base-100 w-96 shadow-sm">
       <input
         className="input w-full"
         placeholder="Title"

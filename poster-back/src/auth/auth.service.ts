@@ -76,7 +76,7 @@ export class AuthService {
         secret: process.env.REFRESH_TOKEN_SECRET,
       },
     );
-    const userId = payload.userId;
+    const userId = payload.sub;
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
@@ -100,7 +100,7 @@ export class AuthService {
   ): Promise<RefreshTokenResponseDTO> {
     const token = await this.jwtService.signAsync(
       {
-        userId: user.id,
+        sub: user.id,
         email: user.email,
         role: user.role,
       },

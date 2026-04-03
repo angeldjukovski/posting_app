@@ -7,6 +7,7 @@ import { PostModule } from './post/post.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JwtStrategy } from './auth/jwt.strategy';
     AuthModule,
     UserModule,
     PostModule,
+    SearchModule,
   ],
 
   controllers: [AppController],

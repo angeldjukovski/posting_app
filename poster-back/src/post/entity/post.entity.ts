@@ -18,6 +18,7 @@ export class PostORMEntity {
   id: number;
   @ManyToOne(() => UserORMEntity, (user) => user.posts, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn({ name: 'user_id' })
   user: UserORMEntity;
@@ -28,7 +29,7 @@ export class PostORMEntity {
   @OneToMany(() => PostLikeORMEntity, (like) => like.post)
   likes: PostLikeORMEntity[];
   @OneToMany(() => PostRepostORMEntity, (repost) => repost.post)
-  reposts: PostLikeORMEntity[];
+  reposts: PostRepostORMEntity[];
   @CreateDateColumn()
   createdAt: Date;
 

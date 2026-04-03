@@ -31,10 +31,18 @@ export class PostService {
     createPostDTO: CreatePostDTO,
     user: UserORMEntity,
   ): Promise<PostDTO> {
+    console.log('Saving Post:', user.id);
     try {
       const post = this.postRepository.create({ ...createPostDTO, user });
       const savePost = await this.postRepository.save(post);
-      return plainToInstance(PostDTO, savePost, {
+      const displayData = {
+        ...savePost,
+        likesCount: 0,
+        repostsCount: 0,
+        isLiked: false,
+        isReposted: false,
+      };
+      return plainToInstance(PostDTO, displayData, {
         excludeExtraneousValues: true,
       });
     } catch (error) {
@@ -63,26 +71,52 @@ export class PostService {
   }
 
   async findAll(userId?: number) {
-    const { entities, raw } = await this.postRepository
+    const query = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
-      .leftJoin('post.likes', 'likes')
-      .leftJoin('post.reposts', 'reposts')
-      .leftJoin('post.likes', 'myLike', 'myLike.userId = :userId', { userId })
-      .leftJoin('post.reposts', 'myRepost', 'myRepost.userId = :userId', {
-        userId,
-      })
       .loadRelationCountAndMap('post.likesCount', 'post.likes')
-      .loadRelationCountAndMap('post.repostsCount', 'post.reposts')
-      .addSelect('myLike.id IS NOT NULL', 'isLiked')
-      .addSelect('myRepost.id IS NOT NULL', 'isReposted')
-      .getRawAndEntities();
+      .loadRelationCountAndMap('post.repostsCount', 'post.reposts');
 
-    return entities.map((post, i) => ({
-      ...post,
-      isLiked: raw[i].isLiked,
-      isReposted: raw[i].isReposted,
-    }));
+    if (userId) {
+      query
+
+        .leftJoin(
+          'post.likes',
+          'myLike',
+          'myLike.userId = :userId AND myLike.postId = post.id',
+          { userId },
+        )
+        .leftJoin(
+          'post.reposts',
+          'myRepost',
+          'myRepost.userId = :userId AND myRepost.postId = post.id',
+          {
+            userId,
+          },
+        )
+        .addSelect(
+          'CASE WHEN myLike.id IS NOT NULL THEN true ELSE false END',
+          'isLiked',
+        )
+        .addSelect(
+          'CASE WHEN myRepost.id IS NOT NULL THEN true ELSE false END',
+          'isReposted',
+        );
+    }
+    const { entities, raw } = await query.getRawAndEntities();
+    return entities.map((post) => {
+      const rawItem = raw.find((r) => r.post_id === post.id);
+
+      return {
+        ...post,
+        isLiked: userId
+          ? rawItem?.isLiked === true || rawItem?.isLiked === 'true'
+          : false,
+        isReposted: userId
+          ? rawItem?.isReposted === true || rawItem?.isReposted === 'true'
+          : false,
+      };
+    });
   }
 
   async findByTitle(title: string): Promise<PostORMEntity | null> {
@@ -94,7 +128,7 @@ export class PostService {
     const post = await this.postRepository.findOneBy({ id: postID });
     if (!post) {
       throw new NotFoundException(
-        `The Post with the id : ${postID} was not found `,
+        `The Post with the id : ${postID} was not found`,
       );
     }
     return post;
@@ -108,6 +142,7 @@ export class PostService {
   }
 
   async deletePost(postID: number, user: UserORMEntity): Promise<void> {
+    console.log('User request:', user);
     const post = await this.postRepository.findOne({
       where: { id: postID },
       relations: ['user'],
@@ -115,8 +150,8 @@ export class PostService {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    if (post.user.id !== user.id) {
-      throw new ForbiddenException('You cannot edit this post');
+    if (!post.user || post.user.id !== user.id) {
+      throw new ForbiddenException('You cannot delete this post');
     }
     await this.postRepository.remove(post);
   }
@@ -131,11 +166,25 @@ export class PostService {
     });
     if (existing) {
       await this.postLikeRepository.remove(existing);
-      return { liked: false };
+      return { isLiked: false };
     }
     const like = this.postLikeRepository.create({ user, post });
     await this.postLikeRepository.save(like);
-    return { liked: true };
+    return { isLiked: true };
+  }
+
+  async deleteLike(postID: number, user: UserORMEntity) {
+    const postLike = await this.postLikeRepository.findOne({
+      where: { user: { id: user.id }, post: { id: postID } },
+      relations: ['user', 'post'],
+    });
+    if (!postLike) {
+      throw new NotFoundException('No post was found');
+    }
+    if (postLike.user.id !== postLike.id) {
+      throw new ForbiddenException('You cannot remove this like');
+    }
+    await this.postLikeRepository.remove(postLike);
   }
 
   async toggleRepost(postID: number, user: UserORMEntity) {
@@ -149,11 +198,25 @@ export class PostService {
 
     if (existing) {
       await this.postRepostRepository.remove(existing);
-      return { reposted: false };
+      return { isReposted: false };
     }
 
     const repost = this.postRepostRepository.create({ user, post });
     await this.postRepostRepository.save(repost);
-    return { reposted: true };
+    return { isReposted: true };
+  }
+
+  async removeRepost(postID: number, user: UserORMEntity) {
+    const repost = await this.postRepostRepository.findOne({
+      where: { user: { id: user.id }, post: { id: postID } },
+      relations: ['user', 'post'],
+    });
+    if (!repost) {
+      throw new NotFoundException('No post was found');
+    }
+    if (repost.user.id !== repost.id) {
+      throw new ForbiddenException('You cannot remove this repost');
+    }
+    await this.postRepostRepository.remove(repost);
   }
 }

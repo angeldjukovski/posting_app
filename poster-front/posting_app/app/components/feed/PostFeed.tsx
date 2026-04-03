@@ -1,23 +1,26 @@
 "use client";
 
 import { usePosts } from "@/app/context/Post.context";
+import { PostCard } from "../post-card/PostCard";
 import Link from "next/link";
+import { useAuth } from "@/app/context/Auth.context";
+import { useEffect, useState } from "react";
 
 export const PostFeed = () => {
-  const { posts } = usePosts();
-  console.log(posts)
+  const { posts, reload } = usePosts();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    reload(user?.id);
+  }, [user,reload]);
 
   return (
-    <div>
-      {posts.map((post) => (
-        <div key={post.id} className="border p-3 my-2">
-          <Link href={`/profile/${post.user.id}`} className="font-bold">
-            @{post.user.username}
-          </Link>
-          <h3>{post.title}</h3>
-          <p>{post.content}</p>
-        </div>
-      ))}
+    <div className="flex flex-col gap-4 items-center py-6">
+      {posts.length > 0 ? (
+        posts.map((post) => <PostCard key={post.id} post={post} />)
+      ) : (
+        <div>There are no posts</div>
+      )}
     </div>
   );
 };

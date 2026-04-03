@@ -12,7 +12,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
-
+  //add transform : true and whitelist:true if the search feature does not work
   const config = new DocumentBuilder()
     .setTitle('Poster Site API')
     .setDescription('Used for making posts')

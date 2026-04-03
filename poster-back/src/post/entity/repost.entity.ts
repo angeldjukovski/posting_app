@@ -7,7 +7,7 @@ import {
 import { UserORMEntity } from 'src/user/entity/users.entity';
 import { PostORMEntity } from './post.entity';
 
-@Entity('post-likes')
+@Entity('post-reposts')
 export class PostRepostORMEntity {
   @PrimaryGeneratedColumn()
   id: number;

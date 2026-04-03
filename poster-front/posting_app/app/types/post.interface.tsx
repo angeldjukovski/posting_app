@@ -4,8 +4,11 @@ id:number
 title: string 
 content : string
 createdAt : string 
-user : User 
-likesCount? : string
+user? : User 
+likesCount? : number
+repostsCount? : number
 isLiked ? : boolean
+isReposted?: boolean;
 
 }
+
