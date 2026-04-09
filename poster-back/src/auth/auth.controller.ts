@@ -5,6 +5,8 @@ import { RegisterDTO } from './dto/register.dto';
 import { LoginDTO } from './dto/login.dto';
 import { RefreshTokenDTO } from './dto/refresh-token.dto';
 import { RefreshTokenResponseDTO } from './dto/refresh-token.response.dto';
+import { VerifyEmailDTO } from './dto/verify-email.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,5 +25,19 @@ export class AuthController {
     @Body() refreshTokenDto: RefreshTokenDTO,
   ): Promise<RefreshTokenResponseDTO> {
     return this.authService.refreshToken(refreshTokenDto);
+  }
+
+  @Post('/verify-email')
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDTO): Promise<void> {
+    const { email } = verifyEmailDto;
+    await this.authService.sendEmail(email);
+  }
+
+  @Post('/reset-password')
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDTO,
+  ): Promise<void> {
+    const { token, newpassword } = resetPasswordDto;
+    await this.authService.resetPassword(token, newpassword);
   }
 }

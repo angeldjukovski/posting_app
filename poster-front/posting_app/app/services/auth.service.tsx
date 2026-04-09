@@ -1,3 +1,4 @@
+
 import api from "../lib/token.intreceptor";
 import { User } from "../types/user";
 
@@ -46,6 +47,17 @@ export const AuthApi = {
   updateProfile : async(payload : Partial<User>): Promise <User> => {
   const {data} = await api.patch<User>('/user/profile',payload)
   return data
-  }
+  },
 
-};
+  verifyEmail : async(email : string):Promise<void> => {
+  const requestBody = {email} 
+  const {data} = await api.post<void>('/auth/verify-email', requestBody)
+  return data
+  },
+  resetPassword : async(token : string, newpassword : string,):Promise<void> => {
+  const requestBody = {token, newpassword} 
+  const {data} = await api.post<void>('/auth/reset-password', requestBody)
+  return data
+
+}
+}

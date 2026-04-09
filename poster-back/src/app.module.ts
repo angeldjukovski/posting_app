@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { SearchModule } from './search/search.module';
+import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ import { SearchModule } from './search/search.module';
   ],
 
   controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  providers: [AppService, JwtStrategy, MailService],
 })
 export class AppModule {}

@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenResponseDTO } from './dto/refresh-token.response.dto';
 import * as bcrypt from 'bcrypt';
 import { RefreshTokenDTO } from './dto/refresh-token.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     @InjectRepository(UserORMEntity)
     private readonly userRepository: Repository<UserORMEntity>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(
@@ -126,6 +128,18 @@ export class AuthService {
     };
   }
 
+  async generateResetTokens(user: UserORMEntity): Promise<string> {
+    return this.jwtService.signAsync(
+      {
+        sub: user.id,
+        email: user.email,
+      },
+      {
+        expiresIn: '15m',
+        secret: process.env.PASSWORD_RESET_SECRET,
+      },
+    );
+  }
   private async validateUsersRefreshToken(
     token: string,
     user: UserORMEntity,
@@ -169,5 +183,45 @@ export class AuthService {
 
     user.refreshToken = remainingTokens;
     await this.userRepository.save(user);
+  }
+
+  async sendEmail(email: string): Promise<void> {
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new NotFoundException(`The ${email} is wrong`);
+    }
+    const token = await this.generateResetTokens(user);
+    const verifyLink = `http://localhost:3000/reset-password?token=${token}`;
+    await this.mailService.sendMail(
+      email,
+      'Reset Password',
+      `To change your password please verify your email on the following link: ${verifyLink}`,
+    );
+  }
+
+  async resetPassword(token: string, newpassword: string): Promise<any> {
+    let payload: { sub: number; email: string };
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: process.env.PASSWORD_RESET_SECRET,
+      });
+    } catch {
+      throw new BadRequestException('Invalid or expired token');
+    }
+    const user = await this.userRepository.findOneBy({ id: payload.sub });
+
+    if (!user) {
+      throw new BadRequestException('User not found ');
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      newpassword,
+      Number(process.env.BCRYPT_SALT) || 10,
+    );
+    await this.userRepository.update(user.id, {
+      password: hashedPassword,
+      refreshToken: [],
+    });
+    return { message: 'The password is changed' };
   }
 }
