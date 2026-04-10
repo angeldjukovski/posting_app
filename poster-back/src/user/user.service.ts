@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserRole } from './entity/user-role.enum';
 import { CreateUserDTO } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -58,5 +59,16 @@ export class UserService {
 
   async deleteUser(userID: number): Promise<void> {
     await this.userRepository.delete(userID);
+  }
+
+  async changePassword(id: number, newpassword: string): Promise<void> {
+    const user = await this.getUserById(id);
+    const hashedPassword = await bcrypt.hash(
+      newpassword,
+      Number(process.env.BCRYPT_SALT) || 10,
+    );
+    await this.userRepository.update(user.id, {
+      password: hashedPassword
+    });
   }
 }

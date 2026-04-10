@@ -94,7 +94,7 @@ export const Header = () => {
             <li>
               <Link href="/profile">
                 Profile
-                <span className="badge">New</span>
+                <span className="badge"></span>
               </Link>
             </li>
             <li>
