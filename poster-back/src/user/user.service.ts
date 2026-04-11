@@ -61,14 +61,25 @@ export class UserService {
     await this.userRepository.delete(userID);
   }
 
-  async changePassword(id: number, newpassword: string): Promise<void> {
+  async changePassword(
+    id: number,
+    currentpassword: string,
+    newpassword: string,
+  ): Promise<any> {
     const user = await this.getUserById(id);
+
+    const match = await bcrypt.compare(currentpassword, user.password);
+    if (!match) {
+      throw new Error('Current Password is wrong');
+    }
+
     const hashedPassword = await bcrypt.hash(
       newpassword,
       Number(process.env.BCRYPT_SALT) || 10,
     );
     await this.userRepository.update(user.id, {
-      password: hashedPassword
+      password: hashedPassword,
     });
+    return { message: 'The password is changed' };
   }
 }

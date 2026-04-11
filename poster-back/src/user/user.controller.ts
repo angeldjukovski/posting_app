@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Param,
+  Req,
   ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -17,6 +18,7 @@ import { UserRole } from './entity/user-role.enum';
 import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guard/roles-guard';
 import { UserRoleUpdateDTO } from './dto/update-user.dto.role';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 import { Role } from 'src/common/decorator/role.decorator';
 import { RolesValidationType } from 'src/common/type/roles-validation.type';
 import { GetUser } from 'src/common/decorator/current-user.decorator';
@@ -75,6 +77,13 @@ export class UserController {
   remove(@Param('id', ParseIntPipe) userID: number) {
     return this.userService.deleteUser(userID);
   }
-  
-
+  @Role([UserRole.Poster], RolesValidationType.HasSomeOfThese)
+  @Post('settings/change-password')
+  changePassword(@Req() req, @Body() changePasswordDto: ChangePasswordDTO) {
+    return this.userService.changePassword(
+      req.user.id,
+      changePasswordDto.currentpassword,
+      changePasswordDto.newpassword,
+    );
+  }
 }

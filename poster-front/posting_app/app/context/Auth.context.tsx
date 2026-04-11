@@ -17,7 +17,8 @@ interface AuthContextType {
     password: string
   ) => Promise<void>;
   verifyEmail : (email : string,) => Promise<void>
-  resetPassword : (token : string ,newpassword : string) => Promise<void>
+  resetPassword : (token : string ,newpassword : string) => Promise<void> 
+  changePassword : (currentpassword : string, newpassword : string) => Promise<void>
   logout: () => void;
 }
 
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyEmail = async(email : string) => {await AuthApi.verifyEmail(email)};
   const resetPassword = async(token : string, newpassword : string) => {await AuthApi.resetPassword(token,newpassword)}
+  const changePassword = async(currentpassword : string, newpassword :string) => {await AuthApi.changePassword(currentpassword,newpassword)}
 
   return (
     <AuthContext.Provider
@@ -81,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         verifyEmail,
         resetPassword,
+        changePassword
       }}
     >
       {children}

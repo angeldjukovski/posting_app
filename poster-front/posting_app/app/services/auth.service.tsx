@@ -1,4 +1,3 @@
-
 import api from "../lib/token.intreceptor";
 import { User } from "../types/user";
 
@@ -14,7 +13,7 @@ export const AuthApi = {
     email: string,
     firstName: string,
     lastName: string,
-    password: string
+    password: string,
   ) => {
     const { data } = await api.post<User>("/auth/register", {
       username,
@@ -44,20 +43,30 @@ export const AuthApi = {
     localStorage.removeItem("refreshToken");
   },
 
-  updateProfile : async(payload : Partial<User>): Promise <User> => {
-  const {data} = await api.patch<User>('/user/profile',payload)
-  return data
+  updateProfile: async (payload: Partial<User>): Promise<User> => {
+    const { data } = await api.patch<User>("/user/profile", payload);
+    return data;
   },
 
-  verifyEmail : async(email : string):Promise<void> => {
-  const requestBody = {email} 
-  const {data} = await api.post<void>('/auth/verify-email', requestBody)
-  return data
+  verifyEmail: async (email: string): Promise<void> => {
+    const requestBody = { email };
+    const { data } = await api.post<void>("/auth/verify-email", requestBody);
+    return data;
   },
-  resetPassword : async(token : string, newpassword : string,):Promise<void> => {
-  const requestBody = {token, newpassword} 
-  const {data} = await api.post<void>('/auth/reset-password', requestBody)
-  return data
-
-}
-}
+  resetPassword: async (token: string, newpassword: string): Promise<void> => {
+    const requestBody = { token, newpassword };
+    const { data } = await api.post<void>("/auth/reset-password", requestBody);
+    return data;
+  },
+  changePassword: async (
+    currentpassword: string,
+    newpassword: string,
+  ): Promise<void> => {
+    const requestBody = { currentpassword, newpassword };
+    const { data } = await api.post<void>(
+      `/user/settings/change-password`,
+      requestBody,
+    );
+    return data;
+  },
+};
