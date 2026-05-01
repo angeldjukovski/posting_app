@@ -14,16 +14,21 @@ interface AuthContextType {
     email: string,
     firstName: string,
     lastName: string,
-    password: string
+    password: string,
   ) => Promise<void>;
-  verifyEmail : (email : string,) => Promise<void>
-  resetPassword : (token : string ,newpassword : string) => Promise<void> 
-  changePassword : (currentpassword : string, newpassword : string) => Promise<void>
+  verifyEmail: (email: string) => Promise<void>;
+  resetPassword: (token: string, newpassword: string) => Promise<void>;
+  changePassword: (
+    currentpassword: string,
+    newpassword: string,
+  ) => Promise<void>;
+  deleteUser: (userID: number) => Promise<void>;
+  updateProfile: (payload: Partial<User>) => Promise<void>;
   logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -57,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     firstName: string,
     lastName: string,
-    password: string
+    password: string,
   ) => {
     await AuthApi.register(username, email, firstName, lastName, password);
     await login(email, password);
@@ -68,9 +73,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = "/login";
   };
 
-  const verifyEmail = async(email : string) => {await AuthApi.verifyEmail(email)};
-  const resetPassword = async(token : string, newpassword : string) => {await AuthApi.resetPassword(token,newpassword)}
-  const changePassword = async(currentpassword : string, newpassword :string) => {await AuthApi.changePassword(currentpassword,newpassword)}
+  const verifyEmail = async (email: string) => {
+    await AuthApi.verifyEmail(email);
+  };
+  const resetPassword = async (token: string, newpassword: string) => {
+    await AuthApi.resetPassword(token, newpassword);
+  };
+  const changePassword = async (
+    currentpassword: string,
+    newpassword: string,
+  ) => {
+    await AuthApi.changePassword(currentpassword, newpassword);
+  };
+  const updateProfile = async (payload: Partial<User>) => {
+    if (!user) return;
+    try {
+      const updateUser = await AuthApi.updateProfile(user.id, payload);
+      setUser(updateUser);
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      throw error;
+    }
+  };
+  const deleteUser = async (userID: number) => {
+    await AuthApi.deleteAccount(userID);
+    logout();
+  };
 
   return (
     <AuthContext.Provider
@@ -83,7 +111,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         verifyEmail,
         resetPassword,
-        changePassword
+        changePassword,
+        deleteUser,
+        updateProfile,
       }}
     >
       {children}

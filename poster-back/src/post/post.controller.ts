@@ -102,4 +102,8 @@ export class PostController {
   ) {
     return this.postService.removeRepost(id, user);
   }
+  @Get('/user/:id/reposts')
+  getUserByRepost(@Param('id', ParseIntPipe) id: number) {
+    return this.postService.getRepostByUser(id);
+  }
 }

@@ -55,7 +55,7 @@ export class UserController {
   }
 
   @Role([UserRole.Admin, UserRole.Poster], RolesValidationType.HasSomeOfThese)
-  @Patch('/:id')
+  @Patch('settings/account-information/:id')
   updateUser(
     @Param('id', ParseIntPipe) userID: number,
     @Body() updateUserDto: UpdateUserDTO,
@@ -73,7 +73,7 @@ export class UserController {
   }
 
   @Role([UserRole.Admin, UserRole.Poster], RolesValidationType.HasSomeOfThese)
-  @Delete(':id')
+  @Delete('settings/account-information/:id')
   remove(@Param('id', ParseIntPipe) userID: number) {
     return this.userService.deleteUser(userID);
   }

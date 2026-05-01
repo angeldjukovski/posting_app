@@ -50,4 +50,8 @@ export const PostAPI = {
   delete: async (postID: number): Promise<void> => {
     await api.delete(`/post/${postID}`);
   },
+  findPostByRepost : async (userID :number): Promise <Post[]> => {
+  const {data} =  await api.get(`/post/user/${userID}/reposts`)
+  return data
+  }
 };

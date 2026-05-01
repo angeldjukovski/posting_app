@@ -43,8 +43,8 @@ export const AuthApi = {
     localStorage.removeItem("refreshToken");
   },
 
-  updateProfile: async (payload: Partial<User>): Promise<User> => {
-    const { data } = await api.patch<User>("/user/profile", payload);
+  updateProfile: async (userID : number, payload: Partial<User>): Promise<User> => {
+    const { data } = await api.patch<User>(`/user/settings/account-information/${userID}`, payload);
     return data;
   },
 
@@ -69,4 +69,7 @@ export const AuthApi = {
     );
     return data;
   },
+  deleteAccount : async(userID : number): Promise <void> => {
+  await api.delete(`/user/settings/account-information/${userID}`)
+  }
 };

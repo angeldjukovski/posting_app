@@ -16,6 +16,7 @@ interface PostContextType {
     postID: number,
   ) => Promise<{ isReposted: boolean } | undefined>;
   getByUser: (userID: number) => Promise<Post[]>;
+  findPostByRepost : (userID : number) => Promise<Post[]>
 
   reload: (userId ? : number) => Promise<void>;
 }
@@ -123,6 +124,15 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
       return [];
     }
   };
+  const findPostByRepost = async(userID : number) : Promise <Post[]> => {
+  try {
+  const data = await PostAPI.findPostByRepost(userID)
+  return data || []
+  }catch(error) {
+  console.warn("Cant get the users post check the backend", error);
+  return [];
+  }
+  }
 
   return (
     <PostContext.Provider
@@ -134,6 +144,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         toggleLike,
         toggleRepost,
         getByUser,
+        findPostByRepost,
         reload: load,
       }}
     >

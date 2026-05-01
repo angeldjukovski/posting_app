@@ -15,6 +15,7 @@ import { Repository } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
 import { PostLikeORMEntity } from './entity/post-like.entity';
 import { PostRepostORMEntity } from './entity/repost.entity';
+import { response } from 'express';
 
 @Injectable()
 export class PostService {
@@ -218,5 +219,12 @@ export class PostService {
       throw new ForbiddenException('You cannot remove this repost');
     }
     await this.postRepostRepository.remove(repost);
+  }
+  async getRepostByUser(userID: number) {
+    const repost = await this.postRepostRepository.find({
+      where: { user: { id: userID } },
+      relations: ['post', 'post.user'],
+    });
+    return repost.map((r) => r.post);
   }
 }
