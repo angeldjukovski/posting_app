@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/context/Auth.context";
 import { useState } from "react";
 import { Post } from "@/app/types/post.interface";
+import { CommentSection } from "./CommentSection";
 
 interface PostCardProps {
   post: Post;
@@ -144,6 +145,7 @@ export const PostCard = ({ post, onUpdate }: PostCardProps) => {
               </button>
             </div>
           )}
+          <CommentSection postId={post.id}/>
         </>
       )}
     </div>

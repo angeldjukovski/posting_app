@@ -1,9 +1,9 @@
 import { Expose, Exclude, Type } from 'class-transformer';
 import { UserPublicDTO } from 'src/user/dto/user-public.dto';
 
-export class PostDTO {
+export class CommentDTO {
   @Expose()
-  id: number;
+  id: string;
   @Expose()
   title: string;
   @Expose()
@@ -12,15 +12,13 @@ export class PostDTO {
   @Type(() => UserPublicDTO)
   user: UserPublicDTO;
   @Expose()
-  likesCount: number;
-  @Expose()
-  repostsCount: number;
-  @Expose()
   isLiked?: boolean;
   @Expose()
   isReposted?: boolean;
   @Expose()
-  comment?: string;
+  likesCount: number;
+  @Expose()
+  repostsCount: number;
   @Expose()
   createdAt: Date;
   @Expose()

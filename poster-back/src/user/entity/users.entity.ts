@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
 import { PostORMEntity } from 'src/post/entity/post.entity';
+import { CommentORMEntity } from 'src/comment/entity/comment.entity';
 
 @Entity({ name: 'user' })
 export class UserORMEntity {
@@ -27,6 +28,8 @@ export class UserORMEntity {
   role: UserRole;
   @OneToMany(() => PostORMEntity, (post) => post.user)
   posts: PostORMEntity[];
+  @OneToMany(() => CommentORMEntity, (comment) => comment.user)
+  comments: CommentORMEntity;
   @Column({ type: 'text', array: true, default: () => 'ARRAY[]::text[]' })
   refreshToken: string[];
   @CreateDateColumn()

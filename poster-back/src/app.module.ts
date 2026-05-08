@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { SearchModule } from './search/search.module';
 import { MailService } from './mail/mail.service';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MailService } from './mail/mail.service';
     UserModule,
     PostModule,
     SearchModule,
+    CommentModule,
   ],
 
   controllers: [AppController],

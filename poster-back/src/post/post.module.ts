@@ -4,6 +4,7 @@ import { PostService } from './post.service';
 import { PostORMEntity } from './entity/post.entity';
 import { PostLikeORMEntity } from './entity/post-like.entity';
 import { PostRepostORMEntity } from './entity/repost.entity';
+import { CommentORMEntity } from 'src/comment/entity/comment.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -12,6 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       PostORMEntity,
       PostLikeORMEntity,
       PostRepostORMEntity,
+      CommentORMEntity,
     ]),
   ],
   controllers: [PostController],

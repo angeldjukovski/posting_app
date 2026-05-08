@@ -7,6 +7,7 @@ import { Header } from "./components/header/Header";
 import { AuthProvider } from "./context/Auth.context";
 import { PostProvider } from "./context/Post.context";
 import { SearchProvider } from "./context/Search.context";
+import { CommentProvider } from "./context/Comment.context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,10 +34,12 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} >
         <AuthProvider>
           <PostProvider>
+          <CommentProvider>
           <SearchProvider>
           <Header/>
           {children}
           </SearchProvider>
+          </CommentProvider>
           </PostProvider>
         </AuthProvider>
       </body>

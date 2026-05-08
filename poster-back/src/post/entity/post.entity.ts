@@ -11,6 +11,7 @@ import {
 import { UserORMEntity } from 'src/user/entity/users.entity';
 import { PostLikeORMEntity } from './post-like.entity';
 import { PostRepostORMEntity } from './repost.entity';
+import { CommentORMEntity } from 'src/comment/entity/comment.entity';
 
 @Entity({ name: 'posts' })
 export class PostORMEntity {
@@ -32,7 +33,10 @@ export class PostORMEntity {
   reposts: PostRepostORMEntity[];
   @CreateDateColumn()
   createdAt: Date;
-
+  @OneToMany(() => CommentORMEntity, (comment) => comment.post, {
+    cascade: true,
+  })
+  comments: CommentORMEntity[];
   @UpdateDateColumn()
   updatedAt: Date;
 }
