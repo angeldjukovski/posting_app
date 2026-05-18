@@ -26,6 +26,7 @@ interface CommentContextType {
     commentID: number,
   ) => Promise<{ isReposted: boolean } | undefined>;
   reload: (postId: number, userId?: number) => Promise<void>;
+  findCommentByRepost: (userId: number) => Promise<Comment[]>;
 }
 const CommentContext = createContext<CommentContextType | undefined>(undefined);
 
@@ -114,6 +115,15 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
       console.error("The problem is in the backend or the API call:", error);
     }
   };
+  const findCommentByRepost = async (userId: number): Promise<Comment[]> => {
+    try {
+      const data = await CommentAPI.findCommentByRepost(userId);
+      return data || [];
+    } catch (error) {
+      console.warn("Cant get the users post check the backend", error);
+      return [];
+    }
+  };
   return (
     <CommentContext.Provider
       value={{
@@ -124,6 +134,7 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
         deleteComment,
         toggleLike,
         toggleRepost,
+        findCommentByRepost,
       }}
     >
       {children}
@@ -131,13 +142,10 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
   );
 }
 export function useComments() {
-  const context =
-    useContext(CommentContext);
+  const context = useContext(CommentContext);
 
   if (!context) {
-    throw new Error(
-      "useComments must be used within CommentProvider"
-    );
+    throw new Error("useComments must be used within CommentProvider");
   }
 
   return context;

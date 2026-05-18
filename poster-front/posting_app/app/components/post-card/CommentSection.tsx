@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useComments } from "@/app/context/Comment.context";
+import { Comment } from "@/app/types/comment.interface";
 
 interface CommentProps {
   postId: number;
 }
-export const CommentSection = ({ postId }: CommentProps) => {
+export const CommentSection = ({postId }: CommentProps) => {
   const {
     comments,
     createComment,
@@ -22,12 +23,13 @@ export const CommentSection = ({ postId }: CommentProps) => {
     reload(postId);
   }, [postId]);
 
-  const postComments = comments.filter((comment) => comment.post?.id === postId);
+  const postComments = comments
   const handleCreate = async () => {
     if (!title.trim() || !content.trim()) return;
     await createComment(postId, title, content);
     setTitle("");
     setContent("");
+    await reload(postId)
   };
   return (
     <div className="mt-4 border-t pt-3">

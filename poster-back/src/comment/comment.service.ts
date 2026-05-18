@@ -4,7 +4,7 @@ import { CommentORMEntity } from './entity/comment.entity';
 import { PostRepostORMEntity } from 'src/post/entity/repost.entity';
 import { PostLikeORMEntity } from 'src/post/entity/post-like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreateCommentDTO } from './dto/create-comment.dto';
 import { CommentDTO } from './dto/comment.dto';
 import { UpdateCommentDTO } from './dto/update-comment.dto';
@@ -97,9 +97,10 @@ export class CommentService {
     await this.commentRepository.remove(comment);
   }
 
-  async findALL(userId?: number) {
+  async findALL(postId: number, userId?: number) {
     const query = this.commentRepository
       .createQueryBuilder('comment')
+      .where('comment.post = :postId', { postId })
       .leftJoinAndSelect('comment.user', 'user')
       .loadRelationCountAndMap('comment.likesCount', 'comment.likes')
       .loadRelationCountAndMap('comment.repostsCount', 'comment.reposts');
@@ -122,7 +123,7 @@ export class CommentService {
           'isLiked',
         )
         .addSelect(
-          'CASE WHEN myRepost.id IS NOT NULL THEN true ELSE false END',
+          'CASE WHEN myReposts.id IS NOT NULL THEN true ELSE false END',
           'isReposted',
         );
     }
@@ -156,25 +157,19 @@ export class CommentService {
     }
     return comment;
   }
-  async findByUser(userId: number) {
+  async findByUser(postId: number, userId: number) {
     return this.commentRepository.find({
-      where: { user: { id: userId } },
+      where: { user: { id: userId }, post: { id: postId } },
       relations: ['user'],
       order: { createdAt: 'DESC' },
     });
   }
-  async findByComment(postID: number) {
-    const post = await this.postRepository.findOneBy({ id: postID });
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-    return this.commentRepository.find({
-      where: { post: { id: postID } },
-      relations: ['user'],
-      order: {
-        createdAt: 'ASC',
-      },
+  async findRepostCommentByUser(userId: number) {
+    const repost = await this.repostRepository.find({
+      where: { user: { id: userId }, comment: { id: Not(IsNull()) } },
+      relations: ['user', 'comment.user'],
     });
+    return repost.map((repost) => repost.comment);
   }
 
   async toggleLike(commentID: number, user: UserORMEntity) {
@@ -183,7 +178,7 @@ export class CommentService {
 
     const existing = await this.likeRepostiory.findOne({
       where: { user: { id: user.id }, comment: { id: commentID } },
-      relations: ['user,post'],
+      relations: ['user', 'comment'],
     });
     if (existing) {
       await this.likeRepostiory.remove(existing);
@@ -212,7 +207,7 @@ export class CommentService {
   }
   async deleteLike(commentID: number, user: UserORMEntity) {
     const like = await this.likeRepostiory.findOne({
-      where: { user: { id: user.id }, post: { id: commentID } },
+      where: { user: { id: user.id }, comment: { id: commentID } },
       relations: ['user', 'comment'],
     });
     if (!like) {
@@ -226,7 +221,7 @@ export class CommentService {
 
   async deleteRepost(commentID: number, user: UserORMEntity) {
     const repost = await this.repostRepository.findOne({
-      where: { user: { id: user.id }, post: { id: commentID } },
+      where: { user: { id: user.id }, comment: { id: commentID } },
       relations: ['user', 'comment'],
     });
     if (!repost) {
@@ -235,6 +230,6 @@ export class CommentService {
     if (repost.user.id !== repost.id) {
       throw new ForbiddenException('You cannot remove this like');
     }
-    await this.likeRepostiory.remove(repost);
+    await this.repostRepository.remove(repost);
   }
 }

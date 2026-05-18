@@ -71,7 +71,7 @@ export class CommentController {
     return this.commentService.deleteLike(id, user);
   }
   @UseGuards(JwtAuthGuard)
-  @Delete(':id/like')
+  @Delete(':id/repost')
   deleteRepost(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: UserORMEntity,
@@ -79,19 +79,24 @@ export class CommentController {
     return this.commentService.deleteRepost(id, user);
   }
   @Get()
-  findAll(@Query('userId') userId?: string) {
-    return this.commentService.findALL(userId ? Number(userId) : undefined);
+  findAll(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Query('userId') userId?: string,
+  ) {
+    return this.commentService.findALL(
+      postId,
+      userId ? Number(userId) : undefined,
+    );
   }
-  @Get(':id')
-  getCommentById(@Param('id', ParseIntPipe) id: number) {
-    return this.commentService.findByID(id);
+  @Get('/user/:id')
+  getCommentByUser(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Param('id', ParseIntPipe) userId: number,
+  ) {
+    return this.commentService.findByUser(postId, userId);
   }
-  @Get('user/:id/comment')
-  getCommentsByUser(@Param('id', ParseIntPipe) id: number) {
-    return this.commentService.findByUser(id);
-  }
-  @Get()
-  getCommentByPost(@Param('id', ParseIntPipe) id: number) {
-    return this.commentService.findByComment(id);
+  @Get('/user/:id/reposts')
+  getUserByRepost(@Param('id', ParseIntPipe) userId: number) {
+    return this.commentService.findRepostCommentByUser(userId);
   }
 }

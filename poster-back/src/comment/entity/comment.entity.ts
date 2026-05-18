@@ -30,7 +30,7 @@ export class CommentORMEntity {
   @OneToMany(() => PostRepostORMEntity, (repost) => repost.comment)
   reposts: PostRepostORMEntity[];
   @OneToMany(() => PostLikeORMEntity, (like) => like.comment)
-  like: PostLikeORMEntity[];
+  likes: PostLikeORMEntity[];
   @ManyToOne(() => PostORMEntity, (post) => post.comments, {
     onDelete: 'CASCADE',
   })
